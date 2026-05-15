@@ -20,7 +20,13 @@ class JobFactory extends Factory
      */
     public function definition(): array
 {
-    $userId = User::inRandomOrder()->first()->id; // 
+    $testUserId = 1;
+    
+    if (User::where('id', $testUserId)->exists()) {
+        $userId = $testUserId;
+    } else {
+        $userId = User::inRandomOrder()->first()->id;
+    }
     $jobTypeId = JobType::inRandomOrder()->first()->id;
     $categoryId = Category::inRandomOrder()->first()->id;
     $locationId = Location::inRandomOrder()->first()->id;
@@ -35,8 +41,11 @@ class JobFactory extends Factory
         'address'=> fake()->streetAddress(),
         'deadline'=>fake()->dateTimeBetween('+1 week', '+1 month'),
         'description' => fake()->sentences(10,true),
+        'benefits' => fake()->sentences(10,true),
+        'responsibility'=> fake()->sentences(10,true),
+        'qualifications'=> fake()->sentences(10,true),
         'experience' => rand(1,10),
-        'company_name' => fake()->company(),
+        
     ];
 }
 }

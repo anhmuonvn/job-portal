@@ -36,8 +36,8 @@
                         <select name="category" id="category" class="form-control">
                             <option value="">Chọn ngành nghề</option>
                             @if ($newCategories->isNotEmpty())
-                                @foreach ($newCategories as $category )
-                                    <option value="{{$category->id }}">{{ $category->name }}</option>
+                                @foreach ($newCategories as $newCategory )
+                                    <option value="{{$newCategory->id }}">{{ $newCategory->name }}</option>
                                 @endforeach
                             @endif
                             
@@ -66,7 +66,7 @@
                 <div class="col-lg-4 col-xl-3 col-md-6">
                 <div class="single_catagory">
                     <a href="#">{{$category->name}}</h4></a>
-                    <p class="mb-0"> <span>0</span> Vị trí tuyển dụng</p>
+                    <p class="mb-0"> <span>{{ $category->jobs_count ?? 0 }}</span> Vị trí tuyển dụng</p>
                 </div>
             </div>
             @endforeach

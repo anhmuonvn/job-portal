@@ -13,7 +13,7 @@ return new class extends Migration
     {
         //
         Schema::table("jobs", function (Blueprint $table) {
-            $table->integer("status")->after('company_website')->default(1);
+            $table->integer("status")->after('experience')->default(1);
             $table->integer("isFeature")->after('status')->default(0);
         });
     }

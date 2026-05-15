@@ -28,9 +28,7 @@ return new class extends Migration
             
             $table->text('keywords')->nullable();
             $table->string('experience');
-            $table->string('company_name');
             
-            $table->string('company_website')->nullable();
 
             $table->timestamps();
         });

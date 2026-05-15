@@ -31,11 +31,12 @@
                         <div class="mb-3">
                             <label>Bạn là? *</label><br>
 
-                            <input type="radio" name="role" value="candidate" checked required>
+                            <input type="radio" name="role" id="role_candidate" value="candidate" >
                             Ứng viên
 
-                            <input type="radio" name="role" value="employer">
+                            <input type="radio" id="role_employer" name="role" value="employer">
                             Nhà tuyển dụng
+                            <p ></p>
                         </div> 
                         <button class="btn btn-primary mt-2">Đăng kí</button>
                     </form>                    
@@ -116,6 +117,16 @@
                                 .html('')
                                                 
                     }
+                    if(errors.role) {
+                        $('input[name="role"]').closest('.mb-3').find('p')
+                                    .addClass('text-danger') // Làm chữ hiện màu đỏ
+                                    .html(errors.role[0]);   // Chèn nội dung lỗi từ Server
+                    }
+                    else{
+                         $('input[name="role"]').closest('.mb-3').find('p')
+                        .removeClass('text-danger')
+                        .html('');
+                    }
 
                 }
                 else
@@ -132,6 +143,9 @@
                     $('#confirm_password').removeClass('is-invalid')
                                 .siblings('p').removeClass('invalid-feedback')
                                 .html('')
+                    $('input[name="role"]').closest('.mb-3').find('p')
+                                .removeClass('text-danger')
+                                .html('');
                     window.location.href = "{{ route('account.login') }}";                                               
                 }
                 

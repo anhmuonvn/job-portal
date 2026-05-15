@@ -7,6 +7,7 @@ use App\Models\Job;
 use App\Models\JobApplication;
 use App\Models\JobType;
 use App\Models\Location;
+use App\Models\SavedJob;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -27,7 +28,7 @@ class JobsController extends Controller
         {
             $jobs=$jobs->where(function($query) use ($request) {
                 $query->orWhere("title","like","%".$request->keyword."%");
-                $query->orWhere("keywords","like","%".$request->keyword."%");
+                // $query->orWhere("keywords","like","%".$request->keyword."%");
             });
         } 
         if(!empty($request->category)) 
@@ -74,27 +75,45 @@ class JobsController extends Controller
     public function detail($id)
     {
    
-    $job = Job::where(["id" => $id, "status" => 1])
-        ->with(["location", "jobType", "category"])
-        ->first();
+            $job = Job::where(["id" => $id, "status" => 1])
+                ->with(["location", "jobType", "category","user"])
+                ->first();
 
     if ($job == null) {
         abort(404);
     }
-
+    $count = 0; // Mặc định là 0 dành cho khách chưa đăng nhập
+    if(Auth::check()){
+        $count = SavedJob::where([
+             'user_id'=>Auth::user()->id,
+             'job_id'=>$id
+        ])->count();
+    }
     
     $relateJobs = Job::where('status', 1)
         ->where('category_id', $job->category_id) 
         ->where('id', '!=', $job->id)             
-        ->with(['category', 'location'])
+        ->with(['category', 'location','user'])
         ->latest()                                
         ->take(3)
         ->get();
+    // Ví dụ sửa lại trong Controller của bạn
+        // $employerId = Auth::user()->id;
 
+    // 2. Lấy danh sách các ứng viên đã ứng tuyển vào các công việc của Nhà tuyển dụng này
+        $applications = JobApplication::with(['user', 'job'])
+        ->where('job_id', $id) // Lọc theo công việc cụ thể
+        ->whereHas('user', function($query) {
+            // Lọc: Đảm bảo người ứng tuyển có vai trò là candidate (ứng viên)
+            $query->where('role', 'candidate');
+        })
+        ->latest()
+        ->get()->unique('user_id'); // Lấy danh sách ứng viên duy nhất (theo user_id)
     
     return view('front.jobDetail', [
-        'job' => $job,
-        'relateJobs' => $relateJobs 
+        'job' => $job, "count"=>$count,
+        'relateJobs' => $relateJobs,
+        'applications'=>$applications 
     ]);
     }
     public function applyJob(Request $request){
@@ -107,6 +126,18 @@ class JobsController extends Controller
                 'message'=> 'Công việc ko tồn tại'
               ]);
           }
+          if (\Carbon\Carbon::parse($job->deadline)->isPast()) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Rất tiếc, công việc này đã hết hạn nộp hồ sơ!'
+                ]);
+            }
+          $isApplied = JobApplication::where('user_id', Auth::user()->id)
+                               ->where('job_id', $id)
+                               ->exists();
+          if ($isApplied) {
+            return redirect()->back()->with('error', 'Bạn đã ứng tuyển công việc này rồi!');
+            }                     
           $employer_id = $job->user_id;
           $application = new JobApplication();
           $application->job_id = $id;
@@ -119,6 +150,43 @@ class JobsController extends Controller
               return response()->json([
                 'status'=> true,
                 'message'=> 'Bạn đã ứng tuyển thành công'
+              ]);
+              
+    }
+    public function saveJobs(Request $request){
+        $id = $request->id;
+        $job = Job::find( $id );
+        if ($job == null) {
+            session()->flash('error','Công việc ko tìm thấy');
+            return response()->json([
+                'status'=> false,
+                
+            ]);
+        }
+        $count = 0; // Mặc định là 0 dành cho khách chưa đăng nhập
+
+        if (Auth::check()) {
+            // Chỉ khi đã đăng nhập mới chạy dòng code lấy ID
+            $count = SavedJob::where([
+                'user_id' => Auth::user()->id,
+                'job_id'  => $id
+            ])->count();
+        }
+        if ($count > 0) {
+            session()->flash('error','Công việc này đã được lưu');
+            return response()->json([
+                'status'=> false,
+
+            ]);
+        }
+        $savedJob = new SavedJob();
+        $savedJob->job_id = $id;
+        $savedJob->user_id = Auth::user()->id;
+        $savedJob->save();
+        session()->flash('success','Bạn đã lưu việc làm thành công');
+              return response()->json([
+                'status'=> true,
+                'message'=> 'Bạn đã việc làm thành công'
               ]);
     }
 }

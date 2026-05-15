@@ -53,6 +53,12 @@
                                 <input type="text" name="mobile" id="mobile" placeholder="Mobile"  class="form-control"  value="{{ $user->mobile }}">
                                
                                 <p></p>
+                            </div> 
+                            <div class="mb-4">
+                                <label for="" class="mb-2">Địa chỉ chi tiết</label>
+                                <input type="text" name="address" id="address" placeholder="Address"  class="form-control"  value="{{ $user->address }}">
+                               
+                                <p></p>
                             </div>  
                             <div class="mb-4">
                                 <label for="" class="mb-2">Mô tả ngắn</label>
@@ -76,9 +82,11 @@
                                 <p></p>
                             </div>                        
                         </div>
-                        <div class="card-footer  p-4">
-                            <button type="submit" class="btn btn-primary">Cập nhật</button>
-                        </div>
+                        @if (Auth::user()->role=="candidate")
+                            <div class="card-footer  p-4">
+                                <button type="submit" class="btn btn-primary">Cập nhật</button>
+                            </div>
+                        @endif
                     </form>
                 </div>
 
@@ -141,6 +149,7 @@
                     handleError('designation',errors.designation);
                     handleError('mobile',errors.mobile);
                     handleError('summary',errors.summary);
+                    handleError('address',errors.address);
                     handleError('cv',errors.cv);
                     
 

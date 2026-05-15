@@ -31,12 +31,17 @@
 					</li>										 --}}
 				</ul>
 				@if (Auth::check())
-					<a class="btn btn-outline-primary me-2" href="{{ route('account.profile') }}" type="submit">Tài khoản của tôi</a>
+					@if (Auth::user()->role==="candidate")
+						<a class="btn btn-outline-primary me-2" href="{{ route('account.profile') }}" type="submit">Ứng viên</a>
+				    @else
+					    <a class="btn btn-outline-primary me-2" href="{{ route('account.company') }}" type="submit">Nhà tuyển dụng</a>
+						<a class="btn btn-primary" href="{{ route('account.createJob') }}" type="submit">Đăng công việc</a>		
+					@endif
 			    @else
 				     <a class="btn btn-outline-primary me-2" href="{{ route('account.login') }}" type="submit">Đăng nhập</a>		
 				@endif				
 				
-				<a class="btn btn-primary" href="post-job.html" type="submit">Đăng công việc</a>
+				
 			</div>
 		</div>
 	</nav>
@@ -46,14 +51,36 @@
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title pb-0" id="exampleModalLabel">Đổi ảnh hồ sơ</h5>
+        <h5 class="modal-title pb-0" id="exampleModalLabel">
+			@if (Auth::check())
+				{{-- {{ Auth::user()->role == 'employer' ? 'Cập nhật Logo công ty' : 'Đổi ảnh hồ sơ' }} --}}
+				@if (Auth::user()->role == 'employer')
+					Câp nhật Logo công ty
+			    		
+				@endif
+				@if (Auth::user()->role == 'candidate')
+					Đổi ảnh hồ sơ
+				
+				@endif
+			@endif
+		</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
         <form id="profilePicForm" name="profilePicForm" method="post">
 			@csrf
             <div class="mb-3">
-                <label for="exampleInputEmail1" class="form-label">Ảnh hồ sơ</label>
+                <label for="exampleInputEmail1" class="form-label">
+					@if (Auth::check())
+						{{-- {{ Auth::user()->role == 'employer' ? 'Logo công ty' : 'Ảnh hồ sơ' }} --}}
+						@if (Auth::user()->role == 'employer')
+							Logo công ty
+						@endif
+						@if (Auth::user()->role == 'candidate')
+							Ảnh hồ sơ
+						@endif
+				     @endif		
+					</label>
                 <input type="file" class="form-control" id="image"  name="image">
 				<p class="text-danger" id="error-image"></p>
             </div>

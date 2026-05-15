@@ -20,8 +20,17 @@ return new class extends Migration
             $table->string('image')->nullable();
             $table->string('designation')->nullable();
             $table->string('mobile')->nullable();
-            $table->enum('role',['candidate','admin','employeer'])->default('candidate');
+            $table->enum('role',['candidate','admin','employer'])->default('candidate');
             $table->text('summary')->nullable();
+            $table->foreignId('location_id')->nullable()->constrained()->onDelete('cascade');
+            $table->text('address')->nullable();
+            $table->string('company_name')->nullable();
+            $table->string('company_logo')->nullable();
+            $table->string('company_website')->nullable();
+            $table->text('company_description')->nullable();
+            $table->text('company_address')->nullable();
+            $table->text('company_location')->nullable();
+            $table->string('company_size')->nullable();
             $table->string('cv')->nullable();
             
             $table->rememberToken();
